@@ -20,9 +20,9 @@ var Commands = []cli.Command{
 	},
 
 	{
-		Name:   "show",
+		Name:   "room",
 		Usage:  "",
-		Action: command.CmdShow,
+		Action: command.CmdRoom,
 		Flags:  []cli.Flag{},
 	},
 }
