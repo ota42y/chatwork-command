@@ -23,7 +23,9 @@ var Commands = []cli.Command{
 		Name:   "room",
 		Usage:  "",
 		Action: command.CmdRoom,
-		Flags:  []cli.Flag{},
+		Flags:  []cli.Flag{
+			cli.StringFlag{Name: "r", Usage: "room id"},
+		},
 	},
 }
 
