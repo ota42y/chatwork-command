@@ -3,9 +3,10 @@ package command
 import (
 	"os"
 	"testing"
+
+	"github.com/codegangsta/cli"
 )
 
 func TestCmdRoom(t *testing.T) {
-	// Write your code here
-	room(nil, os.Stdout)
+	room(0, os.Stdout)
 }

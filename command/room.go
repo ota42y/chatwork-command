@@ -10,10 +10,11 @@ import (
 )
 
 func CmdRoom(c *cli.Context) {
-	room(c, os.Stdout)
+	roomID := c.String("r")
+	room(roomID, os.Stdout)
 }
 
-func room(c *cli.Context, writer io.Writer) {
+func room(roomID string, writer io.Writer) {
 	apiToken, err := getApiToken(ChatworkDomain)
 	if err != nil {
 		fmt.Fprintln(writer, err.Error())
@@ -21,13 +22,24 @@ func room(c *cli.Context, writer io.Writer) {
 	}
 
 	chatwork := chatwork.NewClient(apiToken)
-	rooms := chatwork.Rooms()
 
-	for _, room := range rooms {
-		showRoom(room, writer)
+	if roomID == "" {
+		rooms := chatwork.Rooms()
+		for _, room := range rooms {
+			showRoomData(room, writer)
+		}
+	}else{
+		messages := chatwork.RoomMessages(roomID)
+		for _, message := range messages {
+			showMessage(message, writer)
+		}
 	}
 }
 
-func showRoom(room chatwork.Room, writer io.Writer) {
+func showMessage(message chatwork.Message, writer io.Writer) {
+	fmt.Fprintln(writer, message.Account.Name, message.Body, message.SendTime)
+}
+
+func showRoomData(room chatwork.Room, writer io.Writer) {
 	fmt.Fprintln(writer, room.RoomId, room.Name, room.UnreadNum)
 }
