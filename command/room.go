@@ -4,10 +4,36 @@ import (
 	"os"
 	"io"
 	"fmt"
+	"sort"
 
 	"github.com/codegangsta/cli"
 	chatwork "github.com/yoppi/go-chatwork"
 )
+
+// sort Sticky > UnreadNum > lastUpdateTime
+type Rooms []chatwork.Room
+func (r Rooms) Len() int {
+	return len(r)
+}
+
+func (r Rooms) Swap(i, j int) {
+	r[i], r[j] = r[j], r[i]
+}
+
+func (r Rooms) Less(i, j int) bool {
+	if r[i].Sticky != r[j].Sticky {
+		return r[i].Sticky
+	}
+
+	if r[i].UnreadNum != 0 || r[j].UnreadNum != 0 {
+		if r[i].UnreadNum != r[j].UnreadNum {
+			// more big, more priority small
+			return r[i].UnreadNum > r[j].UnreadNum
+		}
+	}
+
+	return r[i].LastUpdateTime > r[j].LastUpdateTime
+}
 
 func CmdRoom(c *cli.Context) {
 	roomID := c.String("r")
@@ -24,7 +50,9 @@ func room(roomID string, writer io.Writer) {
 	chatwork := chatwork.NewClient(apiToken)
 
 	if roomID == "" {
-		rooms := chatwork.Rooms()
+		var rooms Rooms = chatwork.Rooms()
+
+		sort.Sort(rooms)
 		for _, room := range rooms {
 			showRoomData(room, writer)
 		}
