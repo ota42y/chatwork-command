@@ -5,6 +5,7 @@ import (
 	"io"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/codegangsta/cli"
 	chatwork "github.com/yoppi/go-chatwork"
@@ -53,9 +54,7 @@ func room(roomID string, writer io.Writer) {
 		var rooms Rooms = chatwork.Rooms()
 
 		sort.Sort(rooms)
-		for _, room := range rooms {
-			showRoomData(room, writer)
-		}
+		showRoomsData(rooms, writer)
 	}else{
 		messages := chatwork.RoomMessages(roomID)
 		for _, message := range messages {
@@ -68,6 +67,16 @@ func showMessage(message chatwork.Message, writer io.Writer) {
 	fmt.Fprintln(writer, message.Account.Name, message.Body, message.SendTime)
 }
 
-func showRoomData(room chatwork.Room, writer io.Writer) {
-	fmt.Fprintln(writer, room.RoomId, room.Name, room.UnreadNum)
+var IDLength = 9
+var unReadLength = 7
+var format = fmt.Sprintf("%%%dd %%%dd %%s\n", IDLength, unReadLength) // %9d %6d %s
+func showRoomsData(rooms []chatwork.Room, writer io.Writer) {
+	roomID := strings.Repeat(" ", IDLength - 2) + "ID"
+	unReadNum := strings.Repeat(" ", unReadLength - 6) + "unRead"
+	roomName := "RoomName"
+	fmt.Fprintf(writer, "%s %s %s\n", roomID, unReadNum, roomName)
+
+	for _, room := range rooms {
+		fmt.Fprintf(writer, format, room.RoomId, room.UnreadNum, room.Name)
+	}
 }
