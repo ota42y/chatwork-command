@@ -5,10 +5,11 @@ import (
 	"io"
 	"fmt"
 	"sort"
+	"time"
 	"strings"
 
 	"github.com/codegangsta/cli"
-	chatwork "github.com/yoppi/go-chatwork"
+	chatwork "github.com/ota42y/go-chatwork"
 )
 
 // sort Sticky > UnreadNum > lastUpdateTime
@@ -57,19 +58,39 @@ func room(roomID string, writer io.Writer) {
 		showRoomsData(rooms, writer)
 	}else{
 		messages := chatwork.RoomMessages(roomID)
-		for _, message := range messages {
-			showMessage(message, writer)
-		}
+		showMessage(messages, writer)
 	}
 }
 
-func showMessage(message chatwork.Message, writer io.Writer) {
-	fmt.Fprintln(writer, message.Account.Name, message.Body, message.SendTime)
+var messageIDLength = 15
+func showMessage(messages []chatwork.Message, writer io.Writer) {
+	var maxNameLength = 0
+	for _, message := range messages {
+		length := len(message.Account.Name)
+		if maxNameLength < length {
+			maxNameLength = length
+		}
+	}
+
+	// %15d %s %s
+	messageID := "ID" + strings.Repeat(" ", messageIDLength- 2)
+	unReadNum := strings.Repeat(" ", maxNameLength - 4) + "Name"
+	roomName := "Message"
+	fmt.Fprintf(writer, "%s %s %s\n", messageID, unReadNum, roomName)
+
+	for _, message := range messages {
+		timeStr := time.Unix(message.SendTime, 0).Format("01/02 15:04 JST")
+
+		// %15d    %s %s
+		fmt.Println(maxNameLength, len(message.Account.Name))
+		messageFormat := fmt.Sprintf("%%-%dd %%s %s%%s %%s\n", messageIDLength, strings.Repeat(" ", maxNameLength - len(message.Account.Name)) )
+		fmt.Fprintf(writer, messageFormat, message.MessageId, timeStr, message.Account.Name, message.Body)
+	}
 }
 
 var IDLength = 9
 var unReadLength = 7
-var format = fmt.Sprintf("%%%dd %%%dd %%s\n", IDLength, unReadLength) // %9d %6d %s
+var roomNameFormat = fmt.Sprintf("%%%dd %%%dd %%s\n", IDLength, unReadLength) // %9d %6d %s
 func showRoomsData(rooms []chatwork.Room, writer io.Writer) {
 	roomID := strings.Repeat(" ", IDLength - 2) + "ID"
 	unReadNum := strings.Repeat(" ", unReadLength - 6) + "unRead"
@@ -77,6 +98,6 @@ func showRoomsData(rooms []chatwork.Room, writer io.Writer) {
 	fmt.Fprintf(writer, "%s %s %s\n", roomID, unReadNum, roomName)
 
 	for _, room := range rooms {
-		fmt.Fprintf(writer, format, room.RoomId, room.UnreadNum, room.Name)
+		fmt.Fprintf(writer, roomNameFormat, room.RoomId, room.UnreadNum, room.Name)
 	}
 }
