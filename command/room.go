@@ -79,13 +79,16 @@ func showMessage(messages []chatwork.Message, writer io.Writer) {
 	fmt.Fprintf(writer, "%s %s %s\n", messageID, unReadNum, roomName)
 
 	for _, message := range messages {
-		timeStr := time.Unix(message.SendTime, 0).Format("01/02 15:04 JST")
-
-		// %15d    %s %s
-		fmt.Println(maxNameLength, len(message.Account.Name))
-		messageFormat := fmt.Sprintf("%%-%dd %%s %s%%s %%s\n", messageIDLength, strings.Repeat(" ", maxNameLength - len(message.Account.Name)) )
-		fmt.Fprintf(writer, messageFormat, message.MessageId, timeStr, message.Account.Name, message.Body)
+		fmt.Fprintln(writer, fmtMessage(maxNameLength, message))
 	}
+}
+
+func fmtMessage(maxNameLength int, message chatwork.Message) string {
+	timeStr := time.Unix(message.SendTime, 0).Format("01/02 15:04 JST")
+
+	// %15d    %s %s
+	messageFormat := fmt.Sprintf("%%-%dd %%s %s%%s %%s\n", messageIDLength, strings.Repeat(" ", maxNameLength - len(message.Account.Name)) )
+	return fmt.Sprintf(messageFormat, message.MessageId, timeStr, message.Account.Name, message.Body)
 }
 
 var IDLength = 9
