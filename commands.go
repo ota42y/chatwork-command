@@ -27,6 +27,16 @@ var Commands = []cli.Command{
 			cli.StringFlag{Name: "r", Usage: "room id"},
 		},
 	},
+
+	{
+		Name:   "watch",
+		Usage:  "",
+		Action: command.CmdWatch,
+		Flags:  []cli.Flag{
+			cli.IntFlag{Name: "v", Usage: "verbose time (minutes)"},
+			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
+		},
+	},
 }
 
 func CommandNotFound(c *cli.Context, command string) {

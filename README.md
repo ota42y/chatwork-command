@@ -18,4 +18,11 @@ chatwork-command show
 chatwork-command show -r room_name
 // show specific room latest 100 message
 chatwork-command show -r room_name -n 100
+
+// watch new messages with verbose log every 10 minutes
+chatwork-command watch -v 10 
+room    username    message
+Room1   User1       Hello!
+Room1   User2       HRU
+Room2   UserX       It looks like rain.  
 ```
