@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"sort"
 	"time"
+	"strconv"
 	"strings"
 
 	"github.com/codegangsta/cli"
-	chatwork "github.com/ota42y/go-chatwork"
+	chatwork "github.com/ota42y/go-chatwork-api"
 )
 
 // sort Sticky > UnreadNum > lastUpdateTime
@@ -38,26 +39,30 @@ func (r Rooms) Less(i, j int) bool {
 }
 
 func CmdRoom(c *cli.Context) {
-	roomID := c.String("r")
-	room(roomID, os.Stdout)
+	roomIDStr := c.String("r")
+	roomID, err := strconv.ParseInt(roomIDStr, 10, 64)
+	if err == nil{
+		room(roomID, os.Stdout)
+	}
 }
 
-func room(roomID string, writer io.Writer) {
+func room(roomID int64, writer io.Writer) {
 	apiToken, err := getApiToken(ChatworkDomain)
 	if err != nil {
 		fmt.Fprintln(writer, err.Error())
 		return
 	}
 
-	chatwork := chatwork.NewClient(apiToken)
+	chatwork := chatwork.New(apiToken)
 
-	if roomID == "" {
-		var rooms Rooms = chatwork.Rooms()
+	if roomID == 0 {
+		var rooms Rooms
+		rooms, _ = chatwork.GetRooms()
 
 		sort.Sort(rooms)
 		showRoomsData(rooms, writer)
 	}else{
-		messages := chatwork.RoomMessages(roomID)
+		messages, _ := chatwork.GetMessage(roomID, false)
 		showMessage(messages, writer)
 	}
 }
@@ -88,7 +93,7 @@ func fmtMessage(maxNameLength int, message chatwork.Message) string {
 
 	// %15d    %s %s
 	messageFormat := fmt.Sprintf("%%-%dd %%s %s%%s %%s\n", messageIDLength, strings.Repeat(" ", maxNameLength - len(message.Account.Name)) )
-	return fmt.Sprintf(messageFormat, message.MessageId, timeStr, message.Account.Name, message.Body)
+	return fmt.Sprintf(messageFormat, message.MessageID, timeStr, message.Account.Name, message.Body)
 }
 
 var IDLength = 9
@@ -101,6 +106,6 @@ func showRoomsData(rooms []chatwork.Room, writer io.Writer) {
 	fmt.Fprintf(writer, "%s %s %s\n", roomID, unReadNum, roomName)
 
 	for _, room := range rooms {
-		fmt.Fprintf(writer, roomNameFormat, room.RoomId, room.UnreadNum, room.Name)
+		fmt.Fprintf(writer, roomNameFormat, room.RoomID, room.UnreadNum, room.Name)
 	}
 }
