@@ -3,11 +3,10 @@ package command
 import (
     "fmt"
     "time"
-    "strconv"
 
     "github.com/codegangsta/cli"
     "github.com/robfig/cron"
-    chatwork "github.com/ota42y/go-chatwork"
+    chatwork "github.com/ota42y/go-chatwork-api"
 )
 
 func CmdWatch(c *cli.Context) {
@@ -39,12 +38,12 @@ func NewWatchApi(duration int, verbose int) (*watchApi, error) {
     }
 
     watch := &watchApi{
-        ch: chatwork.NewClient(apiToken),
+        ch: chatwork.New(apiToken),
         duration: time.Duration(duration) * time.Minute,
         verbose: time.Duration(verbose) * time.Minute,
         checkTime: time.Now(),
         verboseTime: time.Now(),
-        unReads: make(map[int]int),
+        unReads: make(map[int64]int64),
     }
 
     return watch, nil
@@ -56,7 +55,7 @@ type watchApi struct {
     duration time.Duration
     checkTime time.Time
     verboseTime time.Time
-    unReads map[int]int
+    unReads map[int64]int64
 }
 
 func (* watchApi) Init() {
@@ -82,20 +81,21 @@ func (w *watchApi) printInfo() {
 }
 
 func (w *watchApi) checkApi() {
-    var rooms Rooms = w.ch.Rooms()
+    var rooms Rooms
+    rooms, _ = w.ch.GetRooms()
     for _, room := range rooms {
         // if no unread message, not show (UnreadNum = 0 is skip)
-        num := w.unReads[room.RoomId]
+        num := w.unReads[room.RoomID]
         if num < room.UnreadNum {
             w.showRoomMessage(room)
         }
 
-        w.unReads[room.RoomId] = room.UnreadNum
+        w.unReads[room.RoomID] = room.UnreadNum
     }
 }
 
 func (w *watchApi) showRoomMessage(room chatwork.Room) {
-    messages := w.ch.RoomMessages(strconv.Itoa(room.RoomId))
+    messages, _ := w.ch.GetMessage(room.RoomID, false)
 
     for _, message := range messages {
         fmt.Printf("%s %s\n", "room", room.Name)

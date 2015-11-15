@@ -1,0 +1,4 @@
+gom "github.com/codegangsta/cli"
+gom "github.com/ota42y/go-chatwork-api"
+gom "github.com/robfig/cron"
+gom "github.com/typester/go-pit"
