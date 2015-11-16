@@ -7,6 +7,7 @@ import (
     "github.com/codegangsta/cli"
     "github.com/robfig/cron"
     chatwork "github.com/ota42y/go-chatwork-api"
+    "strings"
 )
 
 func CmdWatch(c *cli.Context) {
@@ -77,7 +78,7 @@ func (w *watchApi) Check(now time.Time) {
 }
 
 func (w *watchApi) printInfo() {
-    fmt.Println("-----check------")
+    fmt.Println("\n\n\n-----check------\n")
 }
 
 func (w *watchApi) checkApi() {
@@ -97,9 +98,9 @@ func (w *watchApi) checkApi() {
 func (w *watchApi) showRoomMessage(room chatwork.Room) {
     messages, _ := w.ch.GetMessage(room.RoomID, false)
 
+    fmt.Printf("%s %s\n", "room", room.Name)
     for _, message := range messages {
-        fmt.Printf("%s %s\n", "room", room.Name)
-        fmt.Printf("%s %s\n", "user", message.Account.Name)
-        fmt.Printf("%s\n\n", message.Body)
+        fmt.Printf("  %s %s\n", "user", message.Account.Name)
+        fmt.Printf("    %s\n\n", strings.Replace(message.Body, "\n", "\n    ", -1))
     }
 }
