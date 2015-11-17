@@ -27,7 +27,6 @@ var Commands = []cli.Command{
 			cli.StringFlag{Name: "r", Usage: "room id"},
 		},
 	},
-
 	{
 		Name:   "watch",
 		Usage:  "",
@@ -35,6 +34,14 @@ var Commands = []cli.Command{
 		Flags:  []cli.Flag{
 			cli.IntFlag{Name: "v", Usage: "verbose time (minutes)"},
 			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
+		},
+	},
+	{
+		Name:   "all",
+		Usage:  "",
+		Action: command.CmdAll,
+		Flags:  []cli.Flag{
+			cli.StringFlag{Name: "f", Usage: "output format (default: text, support: text, json"},
 		},
 	},
 }
