@@ -23,7 +23,7 @@ var Commands = []cli.Command{
 		Name:   "room",
 		Usage:  "",
 		Action: command.CmdRoom,
-		Flags:  []cli.Flag{
+		Flags: []cli.Flag{
 			cli.StringFlag{Name: "r", Usage: "room id"},
 		},
 	},
@@ -31,7 +31,7 @@ var Commands = []cli.Command{
 		Name:   "watch",
 		Usage:  "",
 		Action: command.CmdWatch,
-		Flags:  []cli.Flag{
+		Flags: []cli.Flag{
 			cli.IntFlag{Name: "v", Usage: "verbose time (minutes)"},
 			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
 		},
@@ -40,7 +40,7 @@ var Commands = []cli.Command{
 		Name:   "all",
 		Usage:  "",
 		Action: command.CmdAll,
-		Flags:  []cli.Flag{
+		Flags: []cli.Flag{
 			cli.StringFlag{Name: "f", Usage: "output format (default: text, support: text, json"},
 		},
 	},

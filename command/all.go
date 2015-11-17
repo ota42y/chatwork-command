@@ -1,6 +1,5 @@
 package command
 
-
 import (
 	"fmt"
 	"strings"
