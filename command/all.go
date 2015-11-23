@@ -4,12 +4,18 @@ import (
 	"fmt"
 	"strings"
 
+	"encoding/json"
 	"github.com/codegangsta/cli"
 	chatwork "github.com/ota42y/go-chatwork-api"
 )
 
+type RoomMessages struct {
+	Name     string
+	Messages []chatwork.Message
+}
+
 func CmdAll(c *cli.Context) {
-	//flag := c.String("f")
+	flag := c.String("f")
 
 	apiToken, err := getApiToken(ChatworkDomain)
 	if err != nil {
@@ -18,24 +24,49 @@ func CmdAll(c *cli.Context) {
 
 	client := chatwork.New(apiToken)
 
-	var rooms Rooms
-	rooms, _ = client.GetRooms()
+	rooms, err := client.GetRooms()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	var messageArray []RoomMessages
 	for _, room := range rooms {
 		// if no unread message, not show (UnreadNum = 0 is skip)
 		if 0 < room.UnreadNum {
-			showRoomMessage(client, room)
+			messages, err := client.GetMessage(room.RoomID, false)
+			if err != nil {
+				fmt.Println("GetMessage error")
+				fmt.Println(err)
+			} else {
+				if len(messages) != 0 {
+					msg := RoomMessages{
+						Name:     room.Name,
+						Messages: messages,
+					}
+
+					messageArray = append(messageArray, msg)
+				}
+			}
 		}
+	}
+
+	if flag == "json" {
+		b, _ := json.Marshal(messageArray)
+		fmt.Printf("%s\n", string(b))
+	} else {
+		showRoomMessage(messageArray)
 	}
 }
 
-func showRoomMessage(client *chatwork.Client, room chatwork.Room) {
-	messages, _ := client.GetMessage(room.RoomID, false)
-
-	if len(messages) != 0 {
-		fmt.Printf("%s %s\n", "room", room.Name)
-		for _, message := range messages {
-			fmt.Printf("  %s %s\n", "user", message.Account.Name)
-			fmt.Printf("    %s\n\n", strings.Replace(message.Body, "\n", "\n    ", -1))
+func showRoomMessage(messageArray []RoomMessages) {
+	for _, room := range messageArray {
+		if len(room.Messages) != 0 {
+			fmt.Printf("%s %s\n", "room", room.Name)
+			for _, message := range room.Messages {
+				fmt.Printf("  %s %s\n", "user", message.Account.Name)
+				fmt.Printf("    %s\n\n", strings.Replace(message.Body, "\n", "\n    ", -1))
+			}
 		}
 	}
 }
