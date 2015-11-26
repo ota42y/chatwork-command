@@ -36,8 +36,11 @@ func CmdAll(c *cli.Context) {
 		if 0 < room.UnreadNum {
 			messages, err := client.GetMessage(room.RoomID, false)
 			if err != nil {
-				fmt.Println("GetMessage error")
-				fmt.Println(err)
+				// GetMessage api not return already received message even if it's unread
+				// So, if room have unread message, we can't get all unread message
+				if err.Error() != "unexpected end of JSON input" {
+					fmt.Println(err)
+				}
 			} else {
 				if len(messages) != 0 {
 					msg := RoomMessages{
