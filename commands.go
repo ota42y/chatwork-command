@@ -34,6 +34,7 @@ var Commands = []cli.Command{
 		Flags: []cli.Flag{
 			cli.IntFlag{Name: "v", Usage: "verbose time (minutes)"},
 			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
+			cli.StringFlag{Name: "f", Usage: "output format (default: text, support: text, json"},
 		},
 	},
 	{

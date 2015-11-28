@@ -1,17 +1,18 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/codegangsta/cli"
 	chatwork "github.com/ota42y/go-chatwork-api"
 	"github.com/robfig/cron"
-	"strings"
 )
 
 func CmdWatch(c *cli.Context) {
-	watch, err := NewWatchApi(c.Int("d"), c.Int("v"))
+	watch, err := NewWatchApi(c.Int("d"), c.Int("v"), c.String("f"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -28,7 +29,7 @@ func CmdWatch(c *cli.Context) {
 	}
 }
 
-func NewWatchApi(duration int, verbose int) (*watchApi, error) {
+func NewWatchApi(duration int, verbose int, output string) (*watchApi, error) {
 	apiToken, err := getApiToken(ChatworkDomain)
 	if err != nil {
 		return nil, err
@@ -38,6 +39,11 @@ func NewWatchApi(duration int, verbose int) (*watchApi, error) {
 		duration = 1
 	}
 
+	jsonOutput := false
+	if output == "json" {
+		jsonOutput = true
+	}
+
 	watch := &watchApi{
 		ch:          chatwork.New(apiToken),
 		duration:    time.Duration(duration) * time.Minute,
@@ -45,6 +51,7 @@ func NewWatchApi(duration int, verbose int) (*watchApi, error) {
 		checkTime:   time.Now(),
 		verboseTime: time.Now(),
 		unReads:     make(map[int64]int64),
+		jsonOutput:  jsonOutput,
 	}
 
 	return watch, nil
@@ -57,10 +64,11 @@ type watchApi struct {
 	checkTime   time.Time
 	verboseTime time.Time
 	unReads     map[int64]int64
+	jsonOutput  bool
 }
 
 func (*watchApi) Init() {
-	fmt.Println("start")
+
 }
 
 func (w *watchApi) Check(now time.Time) {
@@ -78,7 +86,6 @@ func (w *watchApi) Check(now time.Time) {
 }
 
 func (w *watchApi) printInfo() {
-	fmt.Println("\n\n\n-----check------\n")
 }
 
 func (w *watchApi) checkApi() {
@@ -98,9 +105,19 @@ func (w *watchApi) checkApi() {
 func (w *watchApi) showRoomMessage(room chatwork.Room) {
 	messages, _ := w.ch.GetMessage(room.RoomID, false)
 
-	fmt.Printf("%s %s\n", "room", room.Name)
-	for _, message := range messages {
-		fmt.Printf("  %s %s\n", "user", message.Account.Name)
-		fmt.Printf("    %s\n\n", strings.Replace(message.Body, "\n", "\n    ", -1))
+	if w.jsonOutput {
+		msg := RoomMessages{
+			Name:     room.Name,
+			Messages: messages,
+		}
+		b, _ := json.Marshal(msg)
+		fmt.Printf("%s\n", string(b))
+
+	} else {
+		fmt.Printf("%s %s\n", "room", room.Name)
+		for _, message := range messages {
+			fmt.Printf("  %s %s\n", "user", message.Account.Name)
+			fmt.Printf("    %s\n\n", strings.Replace(message.Body, "\n", "\n    ", -1))
+		}
 	}
 }
