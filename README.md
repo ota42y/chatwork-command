@@ -1,3 +1,7 @@
+[![Coverage Status](https://coveralls.io/repos/ota42y/chatwork-command/badge.svg?branch=master&service=github)](https://coveralls.io/github/ota42y/chatwork-command?branch=master)
+[![Coverage Status](https://coveralls.io/repos/ota42y/chatwork-command/badge.svg?branch=master&service=github)](https://coveralls.io/github/ota42y/chatwork-command?branch=master)
+
+
 # chatwork-command
 
 *this project is work in progress*
