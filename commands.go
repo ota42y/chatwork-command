@@ -32,18 +32,14 @@ var Commands = []cli.Command{
 		Usage:  "",
 		Action: command.CmdWatch,
 		Flags: []cli.Flag{
-			cli.IntFlag{Name: "v", Usage: "verbose time (minutes)"},
 			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
-			cli.StringFlag{Name: "f", Usage: "output format (default: text, support: text, json"},
 		},
 	},
 	{
 		Name:   "all",
 		Usage:  "",
 		Action: command.CmdAll,
-		Flags: []cli.Flag{
-			cli.StringFlag{Name: "f", Usage: "output format (default: text, support: text, json"},
-		},
+		Flags: []cli.Flag{},
 	},
 }
 
