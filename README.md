@@ -1,8 +1,7 @@
 [![Coverage Status](https://coveralls.io/repos/ota42y/chatwork-command/badge.svg?branch=master&service=github)](https://coveralls.io/github/ota42y/chatwork-command?branch=master)
-[![Coverage Status](https://coveralls.io/repos/ota42y/chatwork-command/badge.svg?branch=master&service=github)](https://coveralls.io/github/ota42y/chatwork-command?branch=master)
-
 
 # chatwork-command
+
 
 *this project is work in progress*
 
@@ -16,17 +15,7 @@ chatwork-command send "test message"
 // specific room
 chatwork-command send -r room_name "test message"
 
-// show mychat latest message
-chatwork-command show
-// show specific room latest message
-chatwork-command show -r room_name
-// show specific room latest 100 message
-chatwork-command show -r room_name -n 100
-
-// watch new messages with verbose log every 10 minutes
-chatwork-command watch -v 10 
-room    username    message
-Room1   User1       Hello!
-Room1   User2       HRU
-Room2   UserX       It looks like rain.  
+// watch new messages every 10 minutes
+chatwork-command watch -d 10
+{"Name":"aaa","Messages":[{"message_id":42....
 ```
