@@ -38,21 +38,21 @@ func NewWatchAPI(duration int) (*watchAPI, error) {
 	}
 
 	watch := &watchAPI{
-		ch:          chatwork.New(apiToken),
-		duration:    time.Duration(duration) * time.Minute,
-		checkTime:   time.Now(),
-		unReads:     make(map[int64]int64),
+		ch:        chatwork.New(apiToken),
+		duration:  time.Duration(duration) * time.Minute,
+		checkTime: time.Now(),
+		unReads:   make(map[int64]int64),
 	}
 
 	return watch, nil
 }
 
 type watchAPI struct {
-	ch          *chatwork.Client
-	duration    time.Duration
-	checkTime   time.Time
-	unReads     map[int64]int64
-	jsonOutput  bool
+	ch         *chatwork.Client
+	duration   time.Duration
+	checkTime  time.Time
+	unReads    map[int64]int64
+	jsonOutput bool
 }
 
 func (w *watchAPI) Check(now time.Time) {
@@ -64,29 +64,41 @@ func (w *watchAPI) Check(now time.Time) {
 }
 
 func (w *watchAPI) checkAPI() {
-	var rooms Rooms
-	rooms, _ = w.ch.GetRooms()
-	for _, room := range rooms {
-		// if no unread message, not show (UnreadNum = 0 is skip)
-		num := w.unReads[room.RoomID]
-		if num < room.UnreadNum {
-			w.showRoomMessage(room)
-		}
-
-		w.unReads[room.RoomID] = room.UnreadNum
+	rooms, err := w.ch.GetRooms()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		checkRoomIDs := w.checkUpdateRoom(rooms)
+		w.showRoomMessages(checkRoomIDs)
 	}
 }
 
-func (w *watchAPI) showRoomMessage(room chatwork.Room) {
-	messages, _ := w.ch.GetMessage(room.RoomID, false)
-	
-	if len(messages) != 0 {
+func (w *watchAPI) checkUpdateRoom(rooms []chatwork.Room) map[int64]string {
+	checkRoomIDs := make(map[int64]string)
+
+	for _, room := range rooms {
+		num := w.unReads[room.RoomID]
+		if num < room.UnreadNum {
+			checkRoomIDs[room.RoomID] = room.Name
+		}
+		w.unReads[room.RoomID] = room.UnreadNum
+	}
+	return checkRoomIDs
+}
+
+type RoomMessages struct {
+	Name     string
+	Messages []chatwork.Message
+}
+
+func (w *watchAPI) showRoomMessages(checkRoomIDs map[int64]string) {
+	for roomID, name := range checkRoomIDs {
+		messages, _ := w.ch.GetMessage(roomID, false)
 		msg := RoomMessages{
-			Name:     room.Name,
+			Name:     name,
 			Messages: messages,
 		}
 		b, _ := json.Marshal(msg)
 		fmt.Printf("%s\n", string(b))
-		
 	}
 }
