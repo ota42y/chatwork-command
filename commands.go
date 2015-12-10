@@ -15,7 +15,10 @@ var Commands = []cli.Command{
 		Name:   "send",
 		Usage:  "",
 		Action: command.CmdSend,
-		Flags:  []cli.Flag{},
+		Flags: []cli.Flag{
+			cli.IntFlag{Name: "r", Usage: "chatwork room id"},
+			cli.StringFlag{Name: "m", Usage: "send message"},
+		},
 	},
 	{
 		Name:   "watch",
