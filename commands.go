@@ -11,21 +11,11 @@ import (
 var GlobalFlags = []cli.Flag{}
 
 var Commands = []cli.Command{
-
 	{
 		Name:   "send",
 		Usage:  "",
 		Action: command.CmdSend,
 		Flags:  []cli.Flag{},
-	},
-
-	{
-		Name:   "room",
-		Usage:  "",
-		Action: command.CmdRoom,
-		Flags: []cli.Flag{
-			cli.StringFlag{Name: "r", Usage: "room id"},
-		},
 	},
 	{
 		Name:   "watch",
@@ -34,12 +24,6 @@ var Commands = []cli.Command{
 		Flags: []cli.Flag{
 			cli.IntFlag{Name: "d", Usage: "api check duration time (minutes)"},
 		},
-	},
-	{
-		Name:   "all",
-		Usage:  "",
-		Action: command.CmdAll,
-		Flags: []cli.Flag{},
 	},
 }
 
